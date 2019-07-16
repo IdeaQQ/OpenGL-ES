@@ -12,7 +12,7 @@
         <activity android:name="com.idea.opengles.MainActivity">
 
         </activity>
-        <activity android:name=".ui.FirstOpenGLActivity">
+        <activity android:name=".ui.AirHockeyActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
