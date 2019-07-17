@@ -4,35 +4,69 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 
 import com.idea.opengles.R;
+import com.idea.opengles.help.ShaderHelper;
 import com.idea.opengles.help.TextResourceReader;
+import com.idea.opengles.util.LoggerConfig;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.logging.Logger;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
+import static android.opengl.GLES20.GL_FLOAT;
+import static android.opengl.GLES20.GL_LINES;
+import static android.opengl.GLES20.GL_POINTS;
+import static android.opengl.GLES20.GL_TRIANGLES;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
+import static android.opengl.GLES20.glDrawArrays;
+import static android.opengl.GLES20.glEnableVertexAttribArray;
+import static android.opengl.GLES20.glGetAttribLocation;
+import static android.opengl.GLES20.glGetUniformLocation;
+import static android.opengl.GLES20.glUniform4f;
+import static android.opengl.GLES20.glUseProgram;
+import static android.opengl.GLES20.glVertexAttribPointer;
 import static android.opengl.GLES20.glViewport;
 
 
 public class AirHockeyRenderer implements GLSurfaceView.Renderer {
 
     private static final int POSITION_COMPONET_COUNT = 2;
-    private static final int BYTE_PER_FLOAT = 2;
+    private static final int BYTE_PER_FLOAT = 4;
     private final FloatBuffer mVertexData;
+    private final Context mContext;
+    private int mProram;
+    private static final String U_COLOR = "u_Color";
+    private int uColorLocation;
+    private static final String A_POSITION = "a_Position";
+    private int aPositionLocation;
 
     public AirHockeyRenderer(Context context) {
         mVertexData = initTriangles();
-        initShader(context);
+        mContext = context;
+
     }
 
     private void initShader(Context context) {
         String vertexShaderResource = TextResourceReader.readTextFileFromResource(context, R.raw.simple_vertex_shader);
         String fragShaderResource = TextResourceReader.readTextFileFromResource(context, R.raw.simple_fragment_shader);
+        int vertexShader = ShaderHelper.compileVertexShader(vertexShaderResource);
+        int fragmentShader = ShaderHelper.compileFragmentShader(fragShaderResource);
+        mProram = ShaderHelper.linkProgram(vertexShader, fragmentShader);
+        if (LoggerConfig.ON) {
+            ShaderHelper.validateProgram(mProram);
+            glUseProgram(mProram);
+        }
+        uColorLocation = glGetUniformLocation(mProram, U_COLOR);
+        aPositionLocation = glGetAttribLocation(mProram,A_POSITION);
+
+        mVertexData.position(0);
+        glVertexAttribPointer(aPositionLocation,POSITION_COMPONET_COUNT,GL_FLOAT,false,0,mVertexData);
+        glEnableVertexAttribArray(aPositionLocation);
     }
 
     private FloatBuffer initTriangles() {
@@ -45,7 +79,6 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
                 0, 0,
                 9f, 0f,
                 9f, 14f,
-
 
                 //center line
                 0f, 7f,
@@ -65,6 +98,8 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         glClearColor(1.0f, 0.5f, 1.0f, 0.0f);
+        initShader(mContext);
+
     }
 
     @Override
@@ -75,5 +110,18 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         glClear(GL_COLOR_BUFFER_BIT);
+        glUniform4f(uColorLocation,1f,1f,1f,1f);
+        glDrawArrays(GL_TRIANGLES,0,6);
+
+        glUniform4f(uColorLocation,1f,0f,0f,1f);
+        glDrawArrays(GL_LINES,6,2);
+
+        //Draw the first mallet blue
+        glUniform4f(uColorLocation,0f,0f,1f,1f);
+        glDrawArrays(GL_POINTS,8,1);
+
+        //Draw the second mallet red
+        glUniform4f(uColorLocation,1f,0f,0f,1f);
+        glDrawArrays(GL_POINTS,9,1);
     }
 }
