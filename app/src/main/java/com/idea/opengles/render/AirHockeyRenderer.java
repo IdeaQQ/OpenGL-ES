@@ -1,6 +1,10 @@
 package com.idea.opengles.render;
 
+import android.content.Context;
 import android.opengl.GLSurfaceView;
+
+import com.idea.opengles.R;
+import com.idea.opengles.help.TextResourceReader;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -21,8 +25,18 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     private static final int BYTE_PER_FLOAT = 2;
     private final FloatBuffer mVertexData;
 
-    public AirHockeyRenderer() {
+    public AirHockeyRenderer(Context context) {
+        mVertexData = initTriangles();
+        initShader(context);
+    }
 
+    private void initShader(Context context) {
+        String vertexShaderResource = TextResourceReader.readTextFileFromResource(context, R.raw.simple_vertex_shader);
+        String fragShaderResource = TextResourceReader.readTextFileFromResource(context, R.raw.simple_fragment_shader);
+    }
+
+    private FloatBuffer initTriangles() {
+        FloatBuffer mVertexData;
         float tableVerticesWithTriangles[] = {
                 0f, 0f,
                 9f, 14f,
@@ -45,6 +59,7 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
         mVertexData.put(tableVerticesWithTriangles);
+        return mVertexData;
     }
 
     @Override

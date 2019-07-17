@@ -29,7 +29,7 @@ public class AirHockeyActivity extends Activity {
         final boolean supportGLEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
         if (supportGLEs2) {
             mGLSurfaceView.setEGLContextClientVersion(2);
-            mGLSurfaceView.setRenderer(new AirHockeyRenderer());
+            mGLSurfaceView.setRenderer(new AirHockeyRenderer(this));
             mRenderSet = true;
         } else {
             return;
