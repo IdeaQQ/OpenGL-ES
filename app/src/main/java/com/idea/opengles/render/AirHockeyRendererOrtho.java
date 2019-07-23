@@ -2,6 +2,7 @@ package com.idea.opengles.render;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 
 import com.idea.opengles.R;
 import com.idea.opengles.help.ShaderHelper;
@@ -25,6 +26,8 @@ import static android.opengl.GLES20.glClearColor;
 import static android.opengl.GLES20.glDrawArrays;
 import static android.opengl.GLES20.glEnableVertexAttribArray;
 import static android.opengl.GLES20.glGetAttribLocation;
+import static android.opengl.GLES20.glGetUniformLocation;
+import static android.opengl.GLES20.glUniformMatrix4fv;
 import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glVertexAttribPointer;
 import static android.opengl.GLES20.glViewport;
@@ -43,6 +46,9 @@ public class AirHockeyRendererOrtho implements GLSurfaceView.Renderer {
     private static final int COLOR_COMPENENT_COUNT = 3;
     private static final int STRIDE = (POSITION_COMPONENT_COUNT + COLOR_COMPENENT_COUNT) * BYTE_PER_FLOAT;
     private int aColorPosition;
+    private static final String U_MATRIX = "u_Matrix";
+    private float[] mProjectionMatrix = new float[16];
+    private int uMartrixLocation;
 
     public AirHockeyRendererOrtho(Context context) {
         mVertexData = initTriangles();
@@ -64,6 +70,8 @@ public class AirHockeyRendererOrtho implements GLSurfaceView.Renderer {
         aPositionLocation = glGetAttribLocation(mProram, A_POSITION);
         aColorPosition = glGetAttribLocation(mProram, A_COLOR);
 
+        uMartrixLocation = glGetUniformLocation(mProram, U_MATRIX);
+
         mVertexData.position(0);
         glVertexAttribPointer(aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, mVertexData);
         glEnableVertexAttribArray(aPositionLocation);
@@ -79,11 +87,11 @@ public class AirHockeyRendererOrtho implements GLSurfaceView.Renderer {
 
                 //triangle fan
                 0f, 0f, 1f, 1f, 1f,
-                -0.5f, -0.5f, 0.7f, 0.7f, 0.7f,
-                0.5f, -0.5f, 0.7f, 0.7f, 0.7f,
-                0.5f,  0.5f, 0.7f, 0.7f, 0.7f,
-                -0.5f, 0.5f, 0.7f, 0.7f, 0.7f,
-                -0.5f, -0.5f, 0.7f, 0.7f, 0.7f,
+                -0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
+                0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
+                0.5f, 0.8f, 0.7f, 0.7f, 0.7f,
+                -0.5f, 0.8f, 0.7f, 0.7f, 0.7f,
+                -0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
 
                 //center line
                 -0.5f, 0f, 1f, 0f, 0f,
@@ -112,11 +120,20 @@ public class AirHockeyRendererOrtho implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         glViewport(0, 0, width, height);
+        final float aspectRatio = width > height ? (float) width / (float) height : (float) height / (float) width;
+        if (width > height) {
+         //landscape
+            Matrix.orthoM(mProjectionMatrix,0,-aspectRatio,aspectRatio,-1f,1f,-1f,1f);
+        } else {
+            //portrait or square
+            Matrix.orthoM(mProjectionMatrix,0,-1f,1f,-aspectRatio,aspectRatio,-1f,1f);
+        }
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         glClear(GL_COLOR_BUFFER_BIT);
+        glUniformMatrix4fv(uMartrixLocation,1,false,mProjectionMatrix,0);
 //        glUniform4f(uColorLocation, 1f, 1f, 1f, 1f);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 6);
 
