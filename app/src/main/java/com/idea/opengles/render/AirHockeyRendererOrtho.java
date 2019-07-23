@@ -25,14 +25,11 @@ import static android.opengl.GLES20.glClearColor;
 import static android.opengl.GLES20.glDrawArrays;
 import static android.opengl.GLES20.glEnableVertexAttribArray;
 import static android.opengl.GLES20.glGetAttribLocation;
-import static android.opengl.GLES20.glGetUniformLocation;
-import static android.opengl.GLES20.glUniform4f;
 import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glVertexAttribPointer;
 import static android.opengl.GLES20.glViewport;
 
-public class AirHockeyRenderer2 implements GLSurfaceView.Renderer {
-
+public class AirHockeyRendererOrtho implements GLSurfaceView.Renderer {
     private static final int POSITION_COMPONENT_COUNT = 2;
     private static final int BYTE_PER_FLOAT = 4;
     private final FloatBuffer mVertexData;
@@ -47,7 +44,7 @@ public class AirHockeyRenderer2 implements GLSurfaceView.Renderer {
     private static final int STRIDE = (POSITION_COMPONENT_COUNT + COLOR_COMPENENT_COUNT) * BYTE_PER_FLOAT;
     private int aColorPosition;
 
-    public AirHockeyRenderer2(Context context) {
+    public AirHockeyRendererOrtho(Context context) {
         mVertexData = initTriangles();
         mContext = context;
 
