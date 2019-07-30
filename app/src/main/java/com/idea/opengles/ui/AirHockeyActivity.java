@@ -8,7 +8,7 @@ import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 
-import com.idea.opengles.render.AirHockeyRendererOrtho;
+import com.idea.opengles.render.AirHockeyRenderMatrix;
 
 public class AirHockeyActivity extends Activity {
 
@@ -29,7 +29,7 @@ public class AirHockeyActivity extends Activity {
         final boolean supportGLEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
         if (supportGLEs2) {
             mGLSurfaceView.setEGLContextClientVersion(2);
-            mGLSurfaceView.setRenderer(new AirHockeyRendererOrtho(this));
+            mGLSurfaceView.setRenderer(new AirHockeyRenderMatrix(this));
             mRenderSet = true;
         } else {
             return;
